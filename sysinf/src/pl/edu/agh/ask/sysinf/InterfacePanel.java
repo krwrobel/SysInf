@@ -1,14 +1,20 @@
 package pl.edu.agh.ask.sysinf;
 
+import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import org.hyperic.sigar.NetInterfaceConfig;
 import org.hyperic.sigar.NetStat;
 import org.hyperic.sigar.Sigar;
 import org.hyperic.sigar.SigarException;
+
+import pl.edu.agh.ask.sysinf.UsbPanel.LsusbParser;
 
 import com.jgoodies.forms.factories.FormFactory;
 import com.jgoodies.forms.layout.ColumnSpec;
@@ -21,10 +27,13 @@ public class InterfacePanel extends JPanel {
 	private static final long serialVersionUID = 5349271779454888438L;
 	private Sigar sigar;	
 	private String[] interfaceList; 
+	private	JScrollPane scrollPane;
+	static DefaultTableModel model = new DefaultTableModel(); 
+	JTable table = new JTable(model); 
 	
-	private JLabel lblInterface1 = new JLabel(" ");
-	private JLabel lblInterface2 = new JLabel(" ");
-	private JLabel lblInterface3 =new JLabel(" ");
+	//private JLabel lblInterface1 = new JLabel(" ");
+	//private JLabel lblInterface2 = new JLabel(" ");
+	//private JLabel lblInterface3 =new JLabel(" ");
 	
 
 	public InterfacePanel() {
@@ -69,7 +78,40 @@ public class InterfacePanel extends JPanel {
 	}
 
 	private void initPanel() {
-		setLayout(new FormLayout(
+
+		model.addColumn("Nazwa"); 
+		model.addColumn("Adres"); 
+		model.addColumn("Maska"); 
+		
+		
+		
+				
+				// Add the table to a scrolling pane
+			;
+		try {
+			interfaceList = sigar.getNetInterfaceList();
+		
+			System.out.println("Szczegóły Interfejsów:");
+			for(String s:interfaceList){
+				 NetInterfaceConfig config = sigar.getNetInterfaceConfig(s);
+				 model.addRow(new Object[]{config.getName(), config.getAddress(),config.getNetmask()});
+				// System.out.println(config.getName());
+				// System.out.println(config.getAddress());
+				// System.out.println(config.getNetmask());
+			}
+			
+		/*	System.out.println("-----Network Info-----");
+	        System.out.println(sigar.getNetInfo());
+	        NetStat thisNetState = sigar.getNetStat();
+	        System.out.println("in-bound " + thisNetState.getAllInboundTotal()
+	                + " out-bound " + thisNetState.getAllOutboundTotal());
+	      */
+			scrollPane = new JScrollPane( table );
+			add( scrollPane, BorderLayout.CENTER );
+		} catch (SigarException e) {
+			e.printStackTrace();
+		}
+	/*	setLayout(new FormLayout(
 				new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC,
 						FormFactory.DEFAULT_COLSPEC,
 						FormFactory.RELATED_GAP_COLSPEC,
@@ -91,39 +133,11 @@ public class InterfacePanel extends JPanel {
 		
 		lblInterface3 = new JLabel("%");
 		add(lblInterface3, "2, 6");
-		
+		*/
 
 	}
 
 	private void updateData() {
-		try {
-			interfaceList = sigar.getNetInterfaceList();
-			
-			if(interfaceList.length>0){
-			lblInterface1.setText(interfaceList[0]);
-			}
-			if(interfaceList.length>1){
-				lblInterface2.setText(interfaceList[1]);
-				}
-			if(interfaceList.length>2){
-				lblInterface3.setText(interfaceList[2]);
-				}
-			System.out.println("Szczegóły Interfejsów:");
-			for(String s:interfaceList){
-				 NetInterfaceConfig config = sigar.getNetInterfaceConfig(s);
-				 System.out.println(config.getName());
-				 System.out.println(config.getAddress());
-				 System.out.println(config.getNetmask());
-			}
-			
-			System.out.println("-----Network Info-----");
-	        System.out.println(sigar.getNetInfo());
-	        NetStat thisNetState = sigar.getNetStat();
-	        System.out.println("in-bound " + thisNetState.getAllInboundTotal()
-	                + " out-bound " + thisNetState.getAllOutboundTotal());
-	        
-		} catch (SigarException e) {
-			e.printStackTrace();
-		}
+	
 	}
 }

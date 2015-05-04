@@ -1,5 +1,6 @@
 package pl.edu.agh.ask.sysinf;
 
+import java.awt.BorderLayout;
 import java.awt.LayoutManager;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,12 +8,16 @@ import java.io.InputStreamReader;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
 import pl.edu.agh.ask.antlr.HelloBaseListener;
 import pl.edu.agh.ask.antlr.HelloLexer;
 import pl.edu.agh.ask.antlr.HelloParser;
@@ -23,22 +28,28 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 public class UsbPanel extends JPanel {
-	public static class LsusbParser extends HelloBaseListener {
+	int x = 0;
+	static DefaultTableModel model = new DefaultTableModel(); 
+	JTable table = new JTable(model); 
+	
+	public class LsusbParser extends HelloBaseListener {
 
 		@Override
 		public void enterThis(@NotNull HelloParser.ThisContext ctx) {
 			// Tutaj wypisuje pokolei nazwy portów usb
 			// Ewentualnie można wyciągnać inne dane jak trzeba będzie
-			System.out.println("Port Usb " + ctx.getText());
+			//System.out.println("Port Usb " + ctx.getText());
+			x++;
+			model.addRow(new Object[]{"Port "+ x, ctx.getText()});
 		}
 
 	}
 
 	private static final long serialVersionUID = 5349271779454888438L;
-
-	private JLabel lblPojemnoscWart = new JLabel(" ");
-	private JLabel lblInterface2;
-	private JLabel lblInterface3;
+	private	JScrollPane scrollPane;
+	//private JLabel lblPojemnoscWart = new JLabel(" ");
+	//private JLabel lblInterface2;
+	//private JLabel lblInterface3;
 
 	public UsbPanel(LayoutManager layout) {
 		super(layout);
@@ -76,35 +87,7 @@ public class UsbPanel extends JPanel {
 	}
 
 	private void initPanel() {
-		setLayout(new FormLayout(
-				new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC,
-						FormFactory.DEFAULT_COLSPEC,
-						FormFactory.RELATED_GAP_COLSPEC,
-						FormFactory.DEFAULT_COLSPEC, }, new RowSpec[] {
-						FormFactory.RELATED_GAP_ROWSPEC,
-						FormFactory.DEFAULT_ROWSPEC,
-						FormFactory.RELATED_GAP_ROWSPEC,
-						FormFactory.DEFAULT_ROWSPEC,
-						FormFactory.RELATED_GAP_ROWSPEC,
-						FormFactory.DEFAULT_ROWSPEC, }));
-
-		JLabel lblPojemnosc = new JLabel("Pojemność:");
-		add(lblPojemnosc, "2, 2");
-		lblPojemnoscWart = new JLabel("%");
-		add(lblPojemnoscWart, "4, 2");
-
-		JLabel lblPojemnosc2 = new JLabel("Dostepne:");
-		add(lblPojemnosc2, "2, 4");
-		lblInterface2 = new JLabel("%");
-		add(lblInterface2, "4, 4");
-
-		JLabel lblUzycieProcesoralbla = new JLabel("Użyte:");
-		add(lblUzycieProcesoralbla, "2, 6");
-		lblInterface3 = new JLabel("%");
-		add(lblInterface3, "4, 6");
-	}
-
-	private void updateData() {
+	
 		ANTLRInputStream input;
 		String command = "lsusb";
 
@@ -142,11 +125,22 @@ public class UsbPanel extends JPanel {
 		// System.out.println(tree.toStringTree(parser));
 		ParseTreeWalker walker = new ParseTreeWalker();
 		System.out.println("Urządzenia na portach usb");
-		walker.walk(new LsusbParser(), tree);
+		
+		model.addColumn("Port Nr"); 
+		model.addColumn("Nazwa"); 
 
-		lblPojemnoscWart.setText("");
-		lblInterface2.setText("");
-		lblInterface3.setText("");
+		
+		walker.walk(new LsusbParser(), tree);
+		
+				
+				// Add the table to a scrolling pane
+				scrollPane = new JScrollPane( table );
+				add( scrollPane, BorderLayout.CENTER );
+
+	}
+
+	private void updateData() {
+;
 
 	}
 }
