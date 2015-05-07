@@ -63,6 +63,7 @@ public class SysInf extends JFrame {
 		tabbedPane.addTab("Usb", null, panel_5, null);
 		
 		JPanel pciPanel = new PciPanel();
+		tabbedPane.addTab("Urządzenia PCI", null, pciPanel, null);
 	}
 
 	public static String toHumanReadable(long bytes) {
