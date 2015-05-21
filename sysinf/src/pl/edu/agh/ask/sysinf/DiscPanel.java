@@ -1,10 +1,12 @@
 package pl.edu.agh.ask.sysinf;
 
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.LayoutManager;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 
 import org.hyperic.sigar.DiskUsage;
 import org.hyperic.sigar.FileSystemUsage;
@@ -27,16 +29,14 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.RowSpec;
 
 import javax.swing.JScrollPane;
+import javax.swing.table.DefaultTableModel;
 
 public class DiscPanel extends JPanel {
 
 	private static final long serialVersionUID = 5349271779454888438L;
-	private Sigar sigar;
-
-	private JLabel lblPojemnoscWart = new JLabel(" ");
-	private JLabel lblInterface2;
-	private JLabel lblInterface3;
-
+	static DefaultTableModel model = new DefaultTableModel(); 
+	JTable table = new JTable(model); 
+	private	JScrollPane scrollPane;
 	private DiscInfo di;
 
 	public DiscPanel() {
@@ -61,10 +61,10 @@ public class DiscPanel extends JPanel {
 
 	public DiscPanel(Sigar sigar) {
 		super();
-		this.sigar = sigar;
+	//	this.sigar = sigar;
 
 		initPanel();
-		updateData();
+		//updateData();
 
 		Thread updater = new Thread() {
 			@Override
@@ -74,43 +74,27 @@ public class DiscPanel extends JPanel {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				updateData();
+				//updateData();
 			}
 		};
 		updater.start();
 	}
 
 	private void initPanel() {
-		setLayout(new FormLayout(new ColumnSpec[] {
-				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC, FormFactory.DEFAULT_COLSPEC,
-				FormFactory.RELATED_GAP_COLSPEC,
-				ColumnSpec.decode("default:grow"), }, new RowSpec[] {
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC, FormFactory.DEFAULT_ROWSPEC,
-				FormFactory.RELATED_GAP_ROWSPEC,
-				RowSpec.decode("default:grow"), }));
-
-		JLabel lblPojemnosc = new JLabel("Pojemność:");
-		add(lblPojemnosc, "2, 2");
-		lblPojemnoscWart = new JLabel("%");
-		add(lblPojemnoscWart, "4, 2");
-
-		JLabel lblPojemnosc2 = new JLabel("Dostepne:");
-		add(lblPojemnosc2, "2, 4");
-		lblInterface2 = new JLabel("%");
-		add(lblInterface2, "4, 4");
-
-		JLabel lblUzycieProcesoralbla = new JLabel("Użyte:");
-		add(lblUzycieProcesoralbla, "2, 6");
-		lblInterface3 = new JLabel("%");
-		add(lblInterface3, "4, 6");
-
+	
 		DiscInfoFactory dif = DiscInfoFactory.getInstance();
 		di = dif.getDiscInfo();
 		if (di.getDiscCount() != 0) {
+			
+		//Dodawanie informacji na temat dysków
+			model.addColumn("Dysk"); 
+			model.addColumn("Rozmiar"); 
+			for (int i = 0; i<di.getDiscCount();i++)
+				model.addRow(new Object[]{"Dysk "+ i, di.getDisc(i).getSize()});
+			scrollPane = new JScrollPane( table );
+			add( scrollPane, BorderLayout.CENTER );
+			
+			
 			Disc disc = di.getDisc(0);
 			if (disc.getPartitionCount() != 0) {
 				DefaultPieDataset dataset = new DefaultPieDataset();
@@ -130,39 +114,9 @@ public class DiscPanel extends JPanel {
 				ChartPanel chartPanel = new ChartPanel(chart);
 				add(chartPanel, "6, 10, fill, fill");
 			}
-		}
+		} else
+			System.out.println("Brak dysków");
 	}
 
-	private void updateData() {
-		try {
-			// dalej nie działa
-			// String dirName = "C:\\";
-			FileSystemUsage f = sigar.getFileSystemUsage("/dev/sda");
-			float fTotal = f.getTotal();
-			long fAvail = f.getAvail();
-			long fUsed = f.getUsed();
-			DiskUsage disc = new DiskUsage();
-			disc.gather(sigar, "/dev/sda");
 
-			lblPojemnoscWart.setText(fTotal + " ");
-			lblInterface2.setText(fAvail + " ");
-			lblInterface3.setText(fUsed + " ");
-			// System.out.println("info: " + disc.getReadBytes());
-			// lblInterface1.setText(Double.toString(fUsed));
-			// For Disk
-			/*
-			 * System.out.println("-----Disk Info-----"); FileSystem
-			 * fileSystemList[] = sigar.getFileSystemList(); for (int s = 0; s <
-			 * fileSystemList.length; s++) { String devName =
-			 * fileSystemList[s].getDevName(); int devType =
-			 * fileSystemList[s].getType(); //Only get the physical disk if
-			 * (devType == FileSystem.TYPE_LOCAL_DISK) {
-			 * System.out.println("Disk " + devName);
-			 * System.out.println(sigar.getDirUsage(devName));
-			 * System.out.println(sigar.getDiskUsage(devName));
-			 * System.out.println(sigar.getFileSystemUsage(devName)); } }
-			 */
-		} catch (SigarException e) {
-		}
-	}
 }

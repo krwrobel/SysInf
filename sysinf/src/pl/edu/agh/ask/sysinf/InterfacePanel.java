@@ -30,11 +30,7 @@ public class InterfacePanel extends JPanel {
 	private	JScrollPane scrollPane;
 	static DefaultTableModel model = new DefaultTableModel(); 
 	JTable table = new JTable(model); 
-	
-	//private JLabel lblInterface1 = new JLabel(" ");
-	//private JLabel lblInterface2 = new JLabel(" ");
-	//private JLabel lblInterface3 =new JLabel(" ");
-	
+
 
 	public InterfacePanel() {
 		super();
@@ -91,49 +87,18 @@ public class InterfacePanel extends JPanel {
 		try {
 			interfaceList = sigar.getNetInterfaceList();
 		
-			System.out.println("Szczegóły Interfejsów:");
 			for(String s:interfaceList){
 				 NetInterfaceConfig config = sigar.getNetInterfaceConfig(s);
 				 model.addRow(new Object[]{config.getName(), config.getAddress(),config.getNetmask()});
-				// System.out.println(config.getName());
-				// System.out.println(config.getAddress());
-				// System.out.println(config.getNetmask());
+
 			}
 			
-		/*	System.out.println("-----Network Info-----");
-	        System.out.println(sigar.getNetInfo());
-	        NetStat thisNetState = sigar.getNetStat();
-	        System.out.println("in-bound " + thisNetState.getAllInboundTotal()
-	                + " out-bound " + thisNetState.getAllOutboundTotal());
-	      */
 			scrollPane = new JScrollPane( table );
 			add( scrollPane, BorderLayout.CENTER );
 		} catch (SigarException e) {
 			e.printStackTrace();
 		}
-	/*	setLayout(new FormLayout(
-				new ColumnSpec[] { FormFactory.RELATED_GAP_COLSPEC,
-						FormFactory.DEFAULT_COLSPEC,
-						FormFactory.RELATED_GAP_COLSPEC,
-						FormFactory.DEFAULT_COLSPEC, }, new RowSpec[] {
-						FormFactory.RELATED_GAP_ROWSPEC,
-						FormFactory.DEFAULT_ROWSPEC,
-						FormFactory.RELATED_GAP_ROWSPEC,
-						FormFactory.DEFAULT_ROWSPEC,
-						FormFactory.RELATED_GAP_ROWSPEC,
-						FormFactory.DEFAULT_ROWSPEC, }));
-
-		JLabel lblUzycieProcesoralbl = new JLabel("Interfejsy:");
-		add(lblUzycieProcesoralbl, "2, 1");
-		lblInterface1 = new JLabel("%");
-		add(lblInterface1, "2, 3");
-		
-		lblInterface2 = new JLabel("%");
-		add(lblInterface2, "2, 5");
-		
-		lblInterface3 = new JLabel("%");
-		add(lblInterface3, "2, 6");
-		*/
+	
 
 	}
 

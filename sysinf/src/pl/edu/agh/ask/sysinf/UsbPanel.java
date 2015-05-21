@@ -47,9 +47,6 @@ public class UsbPanel extends JPanel {
 
 	private static final long serialVersionUID = 5349271779454888438L;
 	private	JScrollPane scrollPane;
-	//private JLabel lblPojemnoscWart = new JLabel(" ");
-	//private JLabel lblInterface2;
-	//private JLabel lblInterface3;
 
 	public UsbPanel(LayoutManager layout) {
 		super(layout);
@@ -124,7 +121,6 @@ public class UsbPanel extends JPanel {
 		ParseTree tree = parser.input();
 		// System.out.println(tree.toStringTree(parser));
 		ParseTreeWalker walker = new ParseTreeWalker();
-		System.out.println("Urządzenia na portach usb");
 		
 		model.addColumn("Port Nr"); 
 		model.addColumn("Nazwa"); 
