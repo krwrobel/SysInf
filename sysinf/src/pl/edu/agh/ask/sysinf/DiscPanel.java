@@ -34,9 +34,9 @@ import javax.swing.table.DefaultTableModel;
 public class DiscPanel extends JPanel {
 
 	private static final long serialVersionUID = 5349271779454888438L;
-	static DefaultTableModel model = new DefaultTableModel(); 
-	JTable table = new JTable(model); 
-	private	JScrollPane scrollPane;
+	static DefaultTableModel model = new DefaultTableModel();
+	JTable table = new JTable(model);
+	private JScrollPane scrollPane;
 	private DiscInfo di;
 
 	public DiscPanel() {
@@ -61,10 +61,10 @@ public class DiscPanel extends JPanel {
 
 	public DiscPanel(Sigar sigar) {
 		super();
-	//	this.sigar = sigar;
+		// this.sigar = sigar;
 
 		initPanel();
-		//updateData();
+		// updateData();
 
 		Thread updater = new Thread() {
 			@Override
@@ -74,27 +74,54 @@ public class DiscPanel extends JPanel {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				//updateData();
+				// updateData();
 			}
 		};
 		updater.start();
 	}
 
 	private void initPanel() {
-	
+
 		DiscInfoFactory dif = DiscInfoFactory.getInstance();
 		di = dif.getDiscInfo();
 		if (di.getDiscCount() != 0) {
-			
-		//Dodawanie informacji na temat dysków
-			model.addColumn("Dysk"); 
-			model.addColumn("Rozmiar"); 
-			for (int i = 0; i<di.getDiscCount();i++)
-				model.addRow(new Object[]{"Dysk "+ i, di.getDisc(i).getSize()});
-			scrollPane = new JScrollPane( table );
-			add( scrollPane, BorderLayout.CENTER );
-			
-			
+
+			// Dodawanie informacji na temat dysków
+			model.addColumn("Dysk");
+			model.addColumn("Rozmiar");
+			for (int i = 0; i < di.getDiscCount(); i++) {
+				int size = (int) (di.getDisc(i).getSize() / 1000000000);
+				model.addRow(new Object[] { "Dysk " + i, size + "GB" });
+			}
+			table.setPreferredScrollableViewportSize(table.getPreferredSize());
+			table.setFillsViewportHeight(true);
+			scrollPane = new JScrollPane(table);
+			scrollPane.setSize(60, 100);
+			add(scrollPane, BorderLayout.NORTH);
+
+			model = new DefaultTableModel();
+			table = new JTable(model);
+			model.addColumn("Partycja");
+			model.addColumn("Rozmiar");
+			model.addColumn("   Format    ");
+			Disc dysk;
+			for (int i = 0; i < di.getDiscCount(); i++) {
+				dysk = di.getDisc(i);
+				for (int j = 0; j < dysk.getPartitionCount(); j++) {
+					Partition p = dysk.getPartition(j);
+					model.addRow(new Object[] {
+							"Partycja " + (j + 1),
+							new Double(((double) p.getBlocks() * (double) dysk
+									.getSectorSize()) / (double) dysk.getSize())
+									+ "GB", p.getSystem() });
+				}
+			}
+			table.setPreferredScrollableViewportSize(table.getPreferredSize());
+			table.setFillsViewportHeight(true);
+			scrollPane = new JScrollPane(table);
+			scrollPane.setSize(60, 100);
+			add(scrollPane, BorderLayout.NORTH);
+
 			Disc disc = di.getDisc(0);
 			if (disc.getPartitionCount() != 0) {
 				DefaultPieDataset dataset = new DefaultPieDataset();
@@ -117,6 +144,5 @@ public class DiscPanel extends JPanel {
 		} else
 			System.out.println("Brak dysków");
 	}
-
 
 }

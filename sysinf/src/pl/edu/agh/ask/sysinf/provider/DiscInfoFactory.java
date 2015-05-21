@@ -40,7 +40,7 @@ public class DiscInfoFactory {
 			String line;
 			Disc disc = null;
 			while ((line = reader.readLine()) != null) {
-				// System.out.println(line);
+				//System.out.println(line);
 				Matcher m = disc_p.matcher(line);
 				if (m.matches()) {
 					if (disc != null) {
@@ -75,6 +75,7 @@ public class DiscInfoFactory {
 				di.setDisc(disc);
 			}
 		} catch (IOException e) {
+			System.out.println("Bład 444");
 			e.printStackTrace();
 		}
 		return di;
