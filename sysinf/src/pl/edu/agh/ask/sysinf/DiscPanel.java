@@ -109,10 +109,12 @@ public class DiscPanel extends JPanel {
 				dysk = di.getDisc(i);
 				for (int j = 0; j < dysk.getPartitionCount(); j++) {
 					Partition p = dysk.getPartition(j);
+					double size = new Double(((double) p.getBlocks() * (double) dysk
+							.getSectorSize()) / (double) dysk.getSize());
+					int sizeint = (int) (size*100);
 					model.addRow(new Object[] {
 							"Partycja " + (j + 1),
-							new Double(((double) p.getBlocks() * (double) dysk
-									.getSectorSize()) / (double) dysk.getSize())
+							sizeint/100
 									+ "GB", p.getSystem() });
 				}
 			}
